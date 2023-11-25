@@ -1,0 +1,265 @@
+import random
+
+#Functions for the game board:
+
+def start():
+    board = [
+    [0,0,0,0],
+    [0,0,0,0],
+    [0,0,0,0],
+    [0,0,0,0]
+]
+    for i in range(2):
+        row = random.randint(0,3)
+        column = random.randint(0,3)
+        num = random.randrange(2,5,2)
+        if board[row][column] == 0:
+            board[row][column] = num
+        else:
+            i -= 1
+
+    print("'W' or 'w' : Move Up")
+    print("'S' or 's' : Move Down")
+    print("'A' or 'a' : Move Left")
+    print("'D' or 'd' : Move Right")
+    print("'Q' or 'q' : Exit")
+    return board
+
+def add_new(board):
+    r, c = random.randint(0, 3), random.randint(0, 3)
+    list = []
+    for i in range(4):
+        for j in range(4):
+            list.append(board[i][j])
+    if 0 in list:
+        while board[r][c] != 0 or board[r][c] == 'X':
+            r, c = random.randint(0, 3), random.randint(0, 3)
+        board[r][c] = random.randint(1, 2) * 2
+    return board
+    
+def print_board(board):
+    for i in range(4):
+        for j in range(4):
+            print(board[i][j], end = ' ')
+        print()
+
+#Functions for tile movement:
+
+def move_left(board):
+    new_board = [[0]*4 for _ in range(4)]
+    for i in range(4):
+        if 'X' in board[i]:
+            obstacle_exist = True
+            apos = int(board[i].index('X')) + 1
+        else:
+            obstacle_exist = False
+        pos = 0
+        for j in range(4):
+            if board[i][j] != 0 and board[i][j] != 'X':
+                if obstacle_exist and j < board[i].index('X'):
+                    new_board[i][pos] = board[i][j]
+                    pos += 1
+                elif obstacle_exist and j > board[i].index('X'):
+                    new_board[i][apos] = board[i][j]
+                    apos += 1
+                elif obstacle_exist == False:
+                    new_board[i][pos] = board[i][j]
+                    pos += 1
+            elif board[i][j] == 'X':
+                new_board[i][j] = 'X'
+    return new_board
+
+def move_right(board):
+    new_board = [[0]*4 for _ in range(4)]
+    for i in range(4):
+        if 'X' in board[i]:
+            obstacle_exist = True
+            apos = int(board[i].index('X')) - 1
+        else:
+            obstacle_exist = False    
+        pos = 3
+        for j in range(4):
+            if board[i][j] != 0 and board[i][j] != 'X':
+                if obstacle_exist and j > board[i].index('X'):
+                    new_board[i][pos] = board[i][j]
+                    pos -= 1
+                elif obstacle_exist and j < board[i].index('X'):
+                    new_board[i][apos] = board[i][j]
+                    apos -= 1
+                elif obstacle_exist == False:
+                    new_board[i][pos] = board[i][j]
+                    pos -= 1
+            elif board[i][j] == 'X':
+                new_board[i][j] = 'X'
+    return new_board
+
+def move_up(board):
+    new_board = [[0]*4 for _ in range(4)]
+    for j in range(4):
+        pos = 0
+        xpos = []
+        for _ in range(4):
+            xpos.append(board[_][j])
+        if 'X' in xpos:
+            obstacle_exist = True
+            apos = int(xpos.index('X')) + 1
+            h = xpos.index('X')
+        else:
+            obstacle_exist = False
+        for i in range(4):
+            if board[i][j] != 0 and board[i][j] != 'X':
+                if obstacle_exist and i < h:
+                    new_board[pos][j] = board[i][j]
+                    pos += 1
+                elif obstacle_exist and i > h:
+                    new_board[apos][j] = board[i][j]
+                    apos += 1
+                elif obstacle_exist == False:
+                    new_board[pos][j] = board[i][j]
+                    pos += 1
+            elif board[i][j] == 'X':
+                new_board[i][j] = 'X'
+    return new_board    
+
+def move_down(board):
+    new_board = [[0]*4 for _ in range(4)]
+    for j in range(4):
+        pos = 3
+        xpos = []
+        for _ in range(4):
+            xpos.append(board[_][j])
+        if 'X' in xpos:
+            obstacle_exist = True
+            apos = int(xpos.index('X')) - 1
+            h = xpos.index('X')
+        else:
+            obstacle_exist = False
+        for i in range(4):
+            if board[i][j] != 0 and board[i][j] != 'X':
+                if obstacle_exist and i > h:
+                    new_board[pos][j] = board[i][j]
+                    pos -= 1
+                elif obstacle_exist and i < h:
+                    new_board[apos][j] = board[i][j]
+                    apos -= 1
+                elif obstacle_exist == False:
+                    new_board[pos][j] = board[i][j]
+                    pos -= 1
+            elif board[i][j] == 'X':
+                new_board[i][j] = 'X'
+    return new_board 
+
+def merge_row(board):
+    s = 0
+    for i in range(4):
+        for j in range(3):
+            if board[i][j] == board[i][j + 1] and board[i][j] != 0 and board[i][j] != 'X':
+                board[i][j] = board[i][j] * 2
+                board[i][j + 1] = 0
+                s += board[i][j]
+    return board, s
+
+def merge_column(board):
+    s = 0
+    for i in range(3):
+        for j in range(4):
+            if board[i][j] == board[i+1][j] and board[i][j] != 0 and board[i][j] != 'X':
+                board[i][j] = board[i][j] * 2
+                board[i+1][j] = 0
+                s += board[i][j]
+    return board, s
+
+#Functions for obstacles
+
+def obstacle_spawn(board):
+    for j in range(2):
+        row = random.randint(0, 3)
+        column = random.randint(0, 3)
+
+        if board[row][column] == 0 and 'X' not in board[row]:
+            board[row][column] = 'X'  # 'X' represents an obstacle
+        elif j == 0:
+            j = 0
+        else:
+            j -= 1  
+
+def obstacle_condition():
+    condition_list = [16,32,64,128,256,512]
+    condition = random.choice(condition_list)
+    print('Reach',condition,'in any tile to break the obstacle(s)!')
+    return condition
+
+def obstacle_detection(board, condition):
+    for i in range(4):
+        for j in range(4):
+            if board[i][j] == condition:
+                    for i in range(4):
+                        for j in range(4):
+                            if board[i][j] == 'X':
+                                board[i][j] = 0
+
+#Funtion to chek the game status:
+
+def game_stat(board):
+    for i in range(4):
+        for j in range(4):
+            if board[i][j] == 2048:
+                return 'won'
+    for i in range(4):
+        for j in range(4):
+            if board[i][j] == 0:
+                return 'contiune'
+    for i in range(3):
+        for j in range(3):
+            if board[i][j] == board[i + 1][j] or board[i][j] == board[i][j + 1]:
+                return 'contiune'
+    return 'lost'
+
+#Execution:
+
+board = start()
+player_score = 0
+obstacle = input("Do you want obstacles? Yes/No: ")
+if obstacle in ['Yes','yes','Y','y']:
+    obstacle_spawn(board)
+    block = True
+    condition = obstacle_condition()
+else:
+    block = False
+while True:
+    print_board(board)
+    print("Your score:",player_score)
+    move = input("Command: ")
+    if move in ["A",'a']:
+        board = move_left(board)
+        board, score = merge_row(board)
+        board = move_left(board)
+        player_score += score
+    elif move in ["D",'d']:
+        board = move_right(board)
+        board, score = merge_row(board)
+        board = move_right(board)
+        player_score += score
+    elif move in ["W",'w']:
+        board = move_up(board)
+        board, score = merge_column(board)
+        board = move_up(board)
+        player_score += score
+    elif move in ["S","s"]:
+        board = move_down(board)
+        board, score = merge_column(board)
+        board = move_down(board)
+        player_score += score
+    elif move in ["Q","q"]:
+        break
+    else:
+        print('Invaild Command')
+    if block:
+        obstacle_detection(board, condition)
+    board = add_new(board)
+    if game_stat(board) == 'won':
+        print("You won!")
+        break
+    elif game_stat(board) == 'lost':
+        print("You lost!")
+        break
